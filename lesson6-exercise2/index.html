@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<!--
+    Copyright (c) 2012-2014 Adobe Systems Incorporated. All rights reserved.
+
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+     KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+<html>
+    <head>
+        <title>Hello World</title>
+    <style>
+		body {
+			background-color: #FF9900;
+		}
+		button {
+			background-color:#009933;
+		  color:#FFFFFF ;
+		  font-weight: bold;
+		  width:200px;
+		  height:30px;
+		  text-transform: uppercase;
+		  font-size: 20px;
+		}
+		.boxed {
+  border: 1px solid #000000 ;
+  color:#FFFFFF ;
+  text-align: center;
+  border-radius: 25px;
+  font-size: 20px;
+}
+	.A{
+		font-size: 25px;
+		color:#0033CC;
+		font-weight:bold;
+		text-transform: uppercase;
+		font-family: Courier;
+		}
+		.B{
+		font-size: 25px;
+		color:#800000;
+		font-weight:bold;
+		text-transform: uppercase;
+		font-family: Courier;
+		}
+		.C{
+		font-size: 25px;
+		color:#336600;
+		font-weight:bold;
+		text-transform: uppercase;
+		font-family: Courier;
+		}
+		.D{
+		font-size: 25px;
+		color:#CC00CC;
+		font-weight:bold;
+		text-transform: uppercase;
+		font-family: Courier;
+		}
+		.likes{
+		font-size: 25px;
+		font-weight:bold;
+		}
+		.R{
+		font-size: 25px;
+		color:#CC00CC;
+		font-weight:bold;
+		text-transform: uppercase;
+		font-family: Courier;
+		}
+	</style>
+    </head>
+    <body>
+	
+		<div id="log" style="font-size:25px"><b><u>LESSON 6 - EXERCISE 2:</u></b><br/><i>Experience location based recommendations based on Facebook profile</i></div><br/><br/>
+		<!-- Lesson 5 Exercise 3 - Login and Logout buttons for Facebook -->
+		<!-- Lesson 6 Exercise 2 - Recommend Me for recommendations-->
+		<div id="facebook_buttons" style="background-color:#3B5998" class="boxed" >
+		<img src="new_fb.jpg"/><br/>
+		Login: <br/><button  onclick="login()">Login</button><br/><br/>
+		<button  onclick="getLoginStatus()">Get login</button><br/><br/>
+		Recommendation:<br/><button onclick="me()">Recommend Me</button><br/><br/>
+		Log Out:<br/><button  onclick="logout()">Logout</button><br/><br/><br/>
+		</div>
+		<br/>
+		<!-- Lesson 4 Exercise 4 - Define div regions for app screen modification based on location -->
+		<div id="regionA" class="A">You are not near the shoes aisle!</div><br/>
+		<div id="regionB" class="B">You are not near the sports aisle!</div><br/>
+		<div id="regionC" class="C">You are not near the movies aisle!</div><br/> 
+		<div id="curPage" class="D">Current Aisle : shop-default</div><br/>
+		<div id="data" class="likes"></div><br/>
+		<div id="reco" class="R"></div><br/>
+		
+
+        
+        <!--<script src="http://localhost:8080/target/target-script-min.js#anonymous"></script>-->
+        <div id="fb-root"></div>
+        <!-- cordova -->
+		<script src="cordova.js"></script>
+		<script> 
+		var currPage = "shop-default"; 
+		var shoes_pr = 0;
+		var sports_pr = 0;
+		var movies_pr = 0;
+		</script>
+		<!-- cordova facebook plugin -->
+		<script src="cdv-plugin-fb-connect.js"></script>
+	    <!-- facebook js sdk -->
+		<script src="facebook-js-sdk.js"></script>
+
+        <script type="text/javascript">
+		//Lesson 6 Exercise 1.1, 1.2 - Adding data structures
+		var bCategories = ["shop-sports", "shop-shoes", "shop-movies"];
+		
+		var pageCategories = [
+						"sports team", "sports league", "product/service", "actor/director",   "movie",   "producer",   "writer",   "studio",   "movie theater",   "tv/movie award",   "fictional character",   "album",   "song",   "musician/band",   "musical instrument",   "playlist",   "music video",   "concert tour",   "concert venue",   "radio station",   "record label",   "music award",   "music chart",   "book",   "author",   "book store",   "library",   "magazine",   "editor",   "tv show",   "tv network",   "tv channel",   "athlete",   "artist",   "public figure",   "journalist",   "news personality",   "chef",   "lawyer",   "doctor",   "business person",   "comedian",   "entertainer",   "monarch",   "teacher",   "dancer",   "politician",   "government official",   "professional sports team",   "coach",   "amateur sports team",   "school sports team",   "restaurant/cafe",   "bar",   "club",   "company",   "website",   "cars",   "bags/luggage",   "camera/photo",   "clothing",   "computers",   "software",   "office supplies",   "electronics",   "health/beauty",   "appliances",   "building materials",   "commercial equipment",   "home decor",   "furniture",   "household supplies",   "kitchen/cooking",   "patio/garden",   "tools/equipment",   "wine/spirits",   "jewelry/watches",   "movies/music",   "pet supplies",   "outdoor gear/sporting goods",   "baby goods/kids goods",   "media/news/publishing",   "bank/financial institution",   "non-governmental organization (ngo)",   "insurance company",   "small business",   "energy/utility",   "retail and consumer merchandise",   "automobiles and parts",   "industrials",   "transport/freight",   "health/medical/pharmaceuticals",   "aerospace/defense",   "mining/materials",   "farming/agriculture",   "chemicals",   "consulting/business services",   "legal/law",   "education",   "engineering/construction",   "food/beverages",   "telecommunication",   "biotechnology",   "computers/technology",   "internet/software",   "travel/leisure",   "community organization",   "political organization",   "vitamins/supplements",   "drugs",   "church/religious organization",   "games/toys",   "app",   "local business",   "hotel",   "landmark",   "transit stop",   "airport",   "sports venue",   "arts/entertainment/nightlife",   "automotive",   "spas/beauty/personal care",   "event planning/event services",   "bank/financial services",   "food/grocery",   "health/medical/pharmacy",   "home improvement",   "pet services",   "professional services",   "business services",   "community/government",   "real estate",   "shopping/retail",   "public places",   "attractions/things to do",   "sports/recreation/activities",   "tours/sightseeing",   "transportation",   "hospital/clinic",   "museum/art gallery",   "organization",   "school",   "university",   "non-profit organization",   "government organization",   "cause",   "political party"
+						];
+
+		var pageCatToBCat = {
+			"sports team" : ["shop-sports", "shop-shoes"], 
+			"movie" : ["shop-movies"],
+			"product/service" : ["shop-sports", "shop-shoes"], "sports league" : [],
+			"actor/director":[],   "producer":[],   "writer":[],   "studio":[],   "movie theater":[],   "tv/movie award":[],   "fictional character":[],   "album":[],   "song":[],   "musician/band":[],   "musical instrument":[],   "playlist":[],   "music video":[],   "concert tour":[],   "concert venue":[],   "radio station":[],   "record label":[],   "music award":[],   "music chart":[],   "book":[],   "author":[],   "book store":[],   "library":[],   "magazine":[],   "editor":[],   "tv show":[],   "tv network":[],   "tv channel":[],   "athlete":[],   "artist":[],   "public figure":[],   "journalist":[],   "news personality":[],   "chef":[],   "lawyer":[],   "doctor":[],   "business person":[],   "comedian":[],   "entertainer":[],   "monarch":[],   "teacher":[],   "dancer":[],   "politician":[],   "government official":[],   "professional sports team":[],   "coach":[],   "amateur sports team":[],   "school sports team":[],   "restaurant/cafe":[],   "bar":[],   "club":[],   "company":[],   "website":[],   "cars":[],   "bags/luggage":[],   "camera/photo":[],   "clothing":[],   "computers":[],   "software":[],   "office supplies":[],   "electronics":[],   "health/beauty":[],   "appliances":[],   "building materials":[],   "commercial equipment":[],   "home decor":[],   "furniture":[],   "household supplies":[],   "kitchen/cooking":[],   "patio/garden":[],   "tools/equipment":[],   "wine/spirits":[],   "jewelry/watches":[],   "movies/music":[],   "pet supplies":[],   "outdoor gear/sporting goods":[],   "baby goods/kids goods":[],   "media/news/publishing":[],   "bank/financial institution":[],   "non-governmental organization (ngo)":[],   "insurance company":[],   "small business":[],   "energy/utility":[],   "retail and consumer merchandise":[],   "automobiles and parts":[],   "industrials":[],   "transport/freight":[],   "health/medical/pharmaceuticals":[],   "aerospace/defense":[],   "mining/materials":[],   "farming/agriculture":[],   "chemicals":[],   "consulting/business services":[],   "legal/law":[],   "education":[],   "engineering/construction":[],   "food/beverages":[],   "telecommunication":[],   "biotechnology":[],   "computers/technology":[],   "internet/software":[],   "travel/leisure":[],   "community organization":[],   "political organization":[],   "vitamins/supplements":[],   "drugs":[],   "church/religious organization":[],   "games/toys":[],   "app":[],   "local business":[],   "hotel":[],   "landmark":[],   "transit stop":[],   "airport":[],   "sports venue":[],   "arts/entertainment/nightlife":[],   "automotive":[],   "spas/beauty/personal care":[],   "event planning/event services":[],   "bank/financial services":[],   "food/grocery":[],   "health/medical/pharmacy":[],   "home improvement":[],   "pet services":[],   "professional services":[],   "business services":[],   "community/government":[],   "real estate":[],   "shopping/retail":[],   "public places":[],   "attractions/things to do":[],   "sports/recreation/activities":[],   "tours/sightseeing":[],   "transportation":[],   "hospital/clinic":[],   "museum/art gallery":[],   "organization":[],   "school":[],   "university":[],   "non-profit organization":[],   "government organization":[],   "cause":[],   "political party":[]
+		};
+				
+		var bCatToPageCat = {"shop-sports" : [], 
+							"shop-shoes" : [], 
+							"shop-movies" : []};
+				
+		var pageCatToPages = {			
+			"sports team" : [], "movie" : [], "product/service" : [], "sports league" : [],
+			"actor/director":[],   "producer":[],   "writer":[],   "studio":[],   "movie theater":[],   "tv/movie award":[],   "fictional character":[],   "album":[],   "song":[],   "musician/band":[],   "musical instrument":[],   "playlist":[],   "music video":[],   "concert tour":[],   "concert venue":[],   "radio station":[],   "record label":[],   "music award":[],   "music chart":[],   "book":[],   "author":[],   "book store":[],   "library":[],   "magazine":[],   "editor":[],   "tv show":[],   "tv network":[],   "tv channel":[],   "athlete":[],   "artist":[],   "public figure":[],   "journalist":[],   "news personality":[],   "chef":[],   "lawyer":[],   "doctor":[],   "business person":[],   "comedian":[],   "entertainer":[],   "monarch":[],   "teacher":[],   "dancer":[],   "politician":[],   "government official":[],   "professional sports team":[],   "coach":[],   "amateur sports team":[],   "school sports team":[],   "restaurant/cafe":[],   "bar":[],   "club":[],   "company":[],   "website":[],   "cars":[],   "bags/luggage":[],   "camera/photo":[],   "clothing":[],   "computers":[],   "software":[],   "office supplies":[],   "electronics":[],   "health/beauty":[],   "appliances":[],   "building materials":[],   "commercial equipment":[],   "home decor":[],   "furniture":[],   "household supplies":[],   "kitchen/cooking":[],   "patio/garden":[],   "tools/equipment":[],   "wine/spirits":[],   "jewelry/watches":[],   "movies/music":[],   "pet supplies":[],   "outdoor gear/sporting goods":[],   "baby goods/kids goods":[],   "media/news/publishing":[],   "bank/financial institution":[],   "non-governmental organization (ngo)":[],   "insurance company":[],   "small business":[],   "energy/utility":[],   "retail and consumer merchandise":[],   "automobiles and parts":[],   "industrials":[],   "transport/freight":[],   "health/medical/pharmaceuticals":[],   "aerospace/defense":[],   "mining/materials":[],   "farming/agriculture":[],   "chemicals":[],   "consulting/business services":[],   "legal/law":[],   "education":[],   "engineering/construction":[],   "food/beverages":[],   "telecommunication":[],   "biotechnology":[],   "computers/technology":[],   "internet/software":[],   "travel/leisure":[],   "community organization":[],   "political organization":[],   "vitamins/supplements":[],   "drugs":[],   "church/religious organization":[],   "games/toys":[],   "app":[],   "local business":[],   "hotel":[],   "landmark":[],   "transit stop":[],   "airport":[],   "sports venue":[],   "arts/entertainment/nightlife":[],   "automotive":[],   "spas/beauty/personal care":[],   "event planning/event services":[],   "bank/financial services":[],   "food/grocery":[],   "health/medical/pharmacy":[],   "home improvement":[],   "pet services":[],   "professional services":[],   "business services":[],   "community/government":[],   "real estate":[],   "shopping/retail":[],   "public places":[],   "attractions/things to do":[],   "sports/recreation/activities":[],   "tours/sightseeing":[],   "transportation":[],   "hospital/clinic":[],   "museum/art gallery":[],   "organization":[],   "school":[],   "university":[],   "non-profit organization":[],   "government organization":[],   "cause":[],   "political party":[]
+			};
+
+		var bCatToProducts = {"shop-sports" : ["LeBron James Jersey", "UCLA Bruins Game Sweatshirt", "Kobe Bryant Basketball Jersey", "Tom Brady Football"], 
+								"shop-shoes" : ["LA Lakers Sneakers" , "Seattle Seahawks Sneakers", "Adidas Shoes", "Nike Shoes", "Puma Shoes"], 
+								"shop-movies" : ["The Shawshank Redemption DVD" , "The Godfather DVD", "The Dark Knight DVD", "Pulp Fiction DVD", "12 Angry Men DVD", "Schindler's List DVD", "The Good, the Bad and the Ugly DVD", "The Lord of the Rings: The Return of the King DVD", "Fight Club DVD"]};								
+
+		var productImages = {"LeBron James Jersey": "lbj.jpg", "UCLA Bruins Game Sweatshirt": "ucla.jpg", "Kobe Bryant Basketball Jersey": "kobe.jpg", "Tom Brady Football": "brady.jpg", "LA Lakers Sneakers": "lakers.jpg" , "Seattle Seahawks Sneakers": "seahawks.jpg", "Adidas Shoes": "adidas.jpg", "Nike Shoes": "nike.jpg", "Puma Shoes": "puma.jpg", "The Shawshank Redemption DVD" : "shawshank.jpg", "The Godfather DVD": "godfather.jpg", "The Dark Knight DVD": "knight.jpg", "Pulp Fiction DVD": "fiction:jpg", "12 Angry Men DVD": "angry.jpg", "Schindler's List DVD": "schinler.jpg", "The Good, the Bad and the Ugly DVD": "gbu.jpg", "The Lord of the Rings: The Return of the King DVD": "ring.jpg", "Fight Club DVD": "fight.jpg", "default": "default.jpg"};
+		
+		var app = {}
+
+			//Lesson 4 Exercise 2 - Define Beacon Regions
+			app.beaconRegions = [ 
+
+
+			{
+				id : 'shop-shoes',
+				uuid : 'B9407F30-F5F8-466E-AFF9-25556B57FE6D',
+				major : 3897,
+				minor : 5746 
+			},
+
+			{
+				id : 'shop-sports',
+				uuid : 'B9407F30-F5F8-466E-AFF9-25556B57FE6D',
+				major : 33913,
+				minor : 55067 
+			},
+
+			{
+				id : 'shop-movies',
+				uuid : 'B9407F30-F5F8-466E-AFF9-25556B57FE6D',
+				major : 4335,
+				minor : 31279 
+			}
+			
+			]
+			
+			// Currently displayed page.
+			app.currentPage = 'shop-default';
+
+			//Lesson 4 Exercise 3 - Beacon Monitoring Logic
+			app.startScanForBeacons = function() {
+				var delegate = new cordova.plugins.locationManager.Delegate();
+
+				delegate.didExitRegion = function(pluginResult) {
+					//window.alert('[DOM] didExitRegion: ' + JSON.stringify(pluginResult));
+					//Lesson 4 Exercise 4 - Change code on exit
+					var aisle = pluginResult.region.identifier;
+					if(aisle.indexOf("shoes") > -1)
+					{	
+						document.getElementById('regionA').innerHTML = "You are not near the Shoes aisle!";
+						shoes_pr = 0;
+						if(sports_pr == 1)
+						{
+							currPage = "shop-sports";
+						}
+						else if(movies_pr == 1)
+						{
+							currPage = "shop-movies";
+						}
+						else
+						{
+							currPage = "shop-default";
+						}
+					}
+					else if(aisle.indexOf("sports") > -1)
+					{
+						document.getElementById('regionB').innerHTML = "You are not near the Sports aisle!";
+						sports_pr = 0;
+						if(movies_pr == 1)
+						{
+							currPage = "shop-movies";
+						}
+						else if(shoes_pr == 1)
+						{
+							currPage = "shop-shoes";
+						}
+						else
+						{
+							currPage = "shop-default";
+						}
+					}
+					else
+					{
+						document.getElementById('regionC').innerHTML = "You are not near the Movies aisle!";
+						movies_pr = 0;
+						if(shoes_pr == 1)
+						{
+							currPage = "shop-shoes";
+						}
+						else if(sports_pr == 1)
+						{
+							currPage = "shop-sports";
+						}
+						else
+						{
+							currPage = "shop-default";
+						}
+					}
+					document.getElementById('curPage').innerHTML = "Current Aisle : " + currPage;
+					cordova.plugins.locationManager
+							.appendToDeviceLog('[DOM] didExitRegion: '
+									+ JSON.stringify(pluginResult));
+				};
+
+				delegate.didEnterRegion = function(pluginResult) {
+					//window.alert('[DOM] didEnterRegion: ' + JSON.stringify(pluginResult));
+					//Lesson 4 Exercise 4 - Change code on entry
+					var aisle = pluginResult.region.identifier;
+					if(aisle.indexOf("shoes") > -1)
+					{	
+						document.getElementById('regionA').innerHTML = "You are near the Shoes aisle!";
+						currPage = "shop-shoes";
+						shoes_pr = 1;
+					}
+					else if(aisle.indexOf("sports") > -1)
+					{
+						document.getElementById('regionB').innerHTML = "You are near the Sports aisle!";
+						currPage = "shop-sports";
+						sports_pr = 1;
+					}
+					else
+					{
+						document.getElementById('regionC').innerHTML = "You are near the Movies aisle!";
+						currPage = "shop-movies";
+						movies_pr = 1;
+					}
+					document.getElementById('curPage').innerHTML = "Current Aisle : " + currPage;
+					cordova.plugins.locationManager
+							.appendToDeviceLog('[DOM] didEnterRegion: '
+									+ JSON.stringify(pluginResult));
+				};
+
+				delegate.didDetermineStateForRegion = function(pluginResult) {
+					//window.alert('[DOM] didDetermineStateForRegion: '
+					//		+ JSON.stringify(pluginResult));
+					cordova.plugins.locationManager
+							.appendToDeviceLog('[DOM] didDetermineStateForRegion: '
+									+ JSON.stringify(pluginResult));
+				};
+
+				delegate.didStartMonitoringForRegion = function(pluginResult) {
+					console.log('didStartMonitoringForRegion:', pluginResult);
+					//window.alert('didStartMonitoringForRegion:'
+					//		+ JSON.stringify(pluginResult));
+				};
+
+				delegate.didRangeBeaconsInRegion = function(pluginResult) {
+					//window.alert('[DOM] didRangeBeaconsInRegion: '
+					//        + JSON.stringify(pluginResult));
+							
+					app.didRangeBeaconsInRegion(pluginResult);
+				};
+
+				// Set the delegate object to use.
+				locationManager.setDelegate(delegate)
+
+				// Start monitoring and ranging our beacons.
+				for ( var r in app.beaconRegions) {
+
+					var region = app.beaconRegions[r]
+
+					var beaconRegion = new locationManager.BeaconRegion(region.id,
+							region.uuid, region.major, region.minor)
+
+					// Start monitoring.
+					locationManager.startMonitoringForRegion(beaconRegion).fail(
+							console.error).done()
+
+					// Start ranging.
+				  locationManager.startRangingBeaconsInRegion(beaconRegion).fail(
+						  console.error).done()
+				}
+			}
+
+			// Display pages depending on which beacon is close.
+			app.didRangeBeaconsInRegion = function(pluginResult)
+			{
+				// There must be a beacon within range.
+				if (0 == pluginResult.beacons.length)
+				{
+					return
+				}
+
+				// Our regions are defined so that there is one beacon per region.
+				// Get the first (and only) beacon in range in the region.
+				var beacon = pluginResult.beacons[0];
+
+				// The region identifier is the page id.
+				var pageId = pluginResult.region.identifier;
+				
+				// If the beacon is close and represents a new page, then show the page.
+				if ((beacon.proximity == 'ProximityImmediate' || beacon.proximity == 'ProximityNear')
+					&& app.currentPage != pageId)
+				{
+					//app.gotoPage(pageId);
+					//document.getElementById('log').innerHTML = bCatToProducts[pageId];  
+					return
+				}
+
+				// If the beacon represents the current page but is far away,
+				// then show the default page.
+				if ((beacon.proximity == 'ProximityFar' || beacon.proximity == 'ProximityUnknown')
+					&& app.currentPage == pageId)
+				{
+					//app.gotoPage('shop-default');
+					//document.getElementById('log').innerHTML = app.currentPage;
+					return
+				}
+
+			}
+			
+
+			<!-- These are the notifications that are displayed to the user through pop-ups if the above JS files does not exist in the same directory-->
+            if ((typeof cordova == 'undefined') && (typeof Cordova == 'undefined')) alert('Cordova variable does not exist. Check that you have included cordova.js correctly');
+            if (typeof CDV == 'undefined') alert('CDV variable does not exist. Check that you have included cdv-plugin-fb-connect.js correctly');
+            if (typeof FB == 'undefined') alert('FB variable does not exist. Check that you have included the Facebook JS SDK file.');
+            
+            FB.Event.subscribe('auth.login', function(response) {
+                               //alert('auth.login event');
+                               });
+            
+            FB.Event.subscribe('auth.logout', function(response) {
+                               //alert('auth.logout event');
+                               });
+            
+            FB.Event.subscribe('auth.sessionChange', function(response) {
+                               //alert('auth.sessionChange event');
+                               });
+            
+            FB.Event.subscribe('auth.statusChange', function(response) {
+                               //alert('auth.statusChange event');
+                               });
+            
+            //Lesson 5 Exercise 3 - Define the required functions
+            function getLoginStatus() {
+                FB.getLoginStatus(function(response) {
+                                  if (response.status == 'connected') {
+                                  alert('You are logged in Facebook now');
+                                  } else {
+                                  //alert('not logged in');
+                                  }
+                                  });
+            }
+            var friendIDs = [];
+			var fdata;
+			
+			//Lesson 5 Exercise 4 - Define the me() function
+            function me() {
+				//alert("Likes ...");
+				///me/friends
+                FB.api('/me/likes', { fields: 'id, name, category' },  function(response) {
+						
+						try{
+                       if (response.error) {
+                       alert(JSON.stringify(response.error));
+                       } else {
+					   document.getElementById('data').innerHTML = "The pages you have liked on Facebook : ";
+                       var data = document.getElementById('data');
+					   fdata=response.data;
+					   //alert("Me too! "  + response.data.toString() + response.data.length); //applog
+					   console.log("fdata: "+fdata);
+                       response.data.forEach(function(item) {
+												 var d = document.createElement('div');
+												 //d.innerHTML = "<img src="+item.picture+"/>"+item.name;
+												 d.innerHTML = item.name;											 
+												 data.appendChild(d);
+												 
+											     pageCatToPages[item.category.toLowerCase()].push(item.name);
+												 
+											
+											 var bCategory = pageCatToBCat[item.category.toLowerCase()];
+											 var lenbCat = bCategories.length;
+											 //alert(category.toString() + ":" + lenCat.toString());
+											 
+											 for (var i = 0; i < lenbCat; i++) {
+												if ((bCategory.indexOf(bCategories[i]) > -1) && 
+												(bCatToPageCat[bCategories[i]].indexOf(item.category.toLowerCase()) < 0)) {
+													bCatToPageCat[bCategories[i]].push(item.category.toLowerCase());
+												}
+											 }
+											 										 
+                                             });
+
+											 var tmpstr = ""
+											 var lenpageCat = pageCategories.length;
+											 for (var i = 0; i < lenpageCat; i++) {
+													tmpstr =  tmpstr +  pageCategories[i] +  ":" + pageCatToPages[pageCategories[i]] + "\n";
+											 }
+											 //alert(tmpstr);
+                                             
+											 var tmpstr = "";
+											 var lenbCat = bCategories.length;
+											 for (var i = 0; i < lenbCat; i++) {
+													tmpstr =  tmpstr +  bCategories[i] +  ":" + bCatToPageCat[bCategories[i]] + "\n";
+											 }
+											 //alert(tmpstr);
+											 
+											pageId = currPage; 
+											alert("You are near " + pageId);
+											var proWin = "No specific recommendation, how about some toffees?";
+											if(pageId == 'shop-default')
+											{
+												proWinImage = "default.jpg";
+											}
+											else
+											{
+												var pageCat = bCatToPageCat[pageId];
+												var lenPageCat = pageCat.length;
+												var tmp0 = pageCat;
+												var tmp = "";
+												pagesArray = []
+												for (var i = 0; i < lenPageCat; i++) {
+													cat_i = pageCat[i];
+													len_cat_i = pageCatToPages[cat_i].length;
+													for (var j = 0; j < len_cat_i; j++){
+														pagesArray.push(pageCatToPages[cat_i][j]);
+													}
+												}
+													
+												//alert("Products:" + bCatToProducts[pageId][0]);
+												var n_max = 0;
+												
+												for(var i = 0; i < pagesArray.length; i++){
+													pageName = pagesArray[i];
+													for(var j = 0; j < bCatToProducts[pageId].length; j++){
+														proName = bCatToProducts[pageId][j];
+														proName_words = proName.split(' ');
+														var n = 0;
+														for(l = 0 ; l < proName_words.length; l++){
+															x = pageName.search(proName_words[l]);
+															if(x!=-1){
+																n = n + 1;
+															}
+														}
+														if(n > n_max){
+															n_max = n;
+															proWin = proName;
+														}
+													}
+												}
+												if (proWin == "No specific recommendation, how about some toffees?") 
+												{
+													proWinImage = "default.jpg";
+												}
+												else
+												{
+													proWinImage = productImages[proWin];
+												}
+											}
+											//alert("Best Offer : " + proWin);
+											document.getElementById('reco').innerHTML = "";
+											var data = document.getElementById('reco');
+											var d = document.createElement('div');
+											d.innerHTML = "Best Offer : " + proWin;
+											data.appendChild(d);
+											var d = document.createElement('div');
+											proWinImage = "img/" + proWinImage
+											d.innerHTML = "<img src= \"" + proWinImage + "\" />";
+											data.appendChild(d);
+																 
+                       }
+					var friends = response.data;
+					console.log(friends.length); 
+					for (var k = 0; k < friends.length && k < 200; k++) {
+				        var friend = friends[k];
+				        var index = 1;
+
+				        friendIDs[k] = friend.id;
+				        //friendsInfo[k] = friend;
+					}
+					console.log("friendId's: "+friendIDs);
+					} catch (e) {
+						alert("Error Message:"+ e.message ); //applog
+						alert("Error:"+ e.description ); //applog
+					}	
+              });
+         }
+            
+            function logout() {
+                FB.logout(function(response) {
+                          alert('You have successfully logged out of Facebook');
+                          });
+            }
+            
+            function login() {
+                FB.login(
+                         function(response) {
+                         if (response.session) {
+                         alert('You are logged in Facebook now');
+                         } else {
+                         alert('Press GET LOGIN button now');
+                         }
+                         },
+                         { scope: "email,user_friends,user_likes" }
+                         );
+            }			
+
+		
+			app.initialize = function() {
+				document.addEventListener('deviceready', app.onDeviceReady, false);
+				//app.gotoPage(app.currentPage);
+				}
+
+			// Called when Cordova are plugins initialised,
+			// the iBeacon API is now available.
+			app.onDeviceReady = function() {
+			
+				  try {
+				  //alert('Device is ready!');
+				  //Lesson 5 Exercise 3 - Initialize the Facebook Plugin
+				  FB.init({ appId: "1553183728301956", nativeInterface: CDV.FB, useCachedDialogs: false });
+				  //document.getElementById('data').innerHTML = "";
+				  } catch (e) {
+				  alert(e);
+				  }
+
+
+				// Specify a shortcut for the location manager holding the iBeacon
+				// functions.
+				window.locationManager = cordova.plugins.locationManager
+				//cordova.plugins.locationManager.requestWhenInUseAuthorization(); //EDIT JAN 22, 2015
+				cordova.plugins.locationManager.requestAlwaysAuthorization();
+				// Start tracking beacons!
+				app.startScanForBeacons()
+			}	
+			
+            app.initialize();
+
+			</script>
+    </body>
+</html>
