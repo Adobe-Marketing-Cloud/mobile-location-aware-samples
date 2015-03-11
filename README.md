@@ -1,3 +1,5 @@
 # mobile-location-aware-samples
 
-Code coming soon
+http://blogs.adobe.com/experiencedelivers/experience-management/build-ibeacons-adobe-phonegap/
+
+Authors: Iftikhar Burhanuddin, Payal Bajaj, Anandhvelu N
